@@ -12,7 +12,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/ihciah/go-shadowsocks2/core"
+	"github.com/Stezkoy/go-shadowsocks2/core"
 )
 
 const (
@@ -128,18 +128,18 @@ func (config *Config) StartServer() {
 	listener, err := net.ListenTCP("tcp", &config.listenAddr)
 	defer listener.Close()
 	if err != nil {
-		panic("[inner-ss] Cannot listen on given ip and port!")
+		panic("[inner-ss] Не могу прослушать данный ip и порт!")
 	}
-	config.log("[inner-ss] Auth: %t, WhiteList: %t, RemoteTimeout: %d sec, InsideTimeout: %d sec.",
+	config.log("[inner-ss] Auth: %t, Белый список: %t, Удаленный тайм-аут: %d sec, Внутренний тайм-аут: %d sec.",
 		config.auth, config.whitelist.enable, config.rtimeout/time.Second, config.itimeout/time.Second)
-	config.log("[inner-ss] Listening %s on port %d.", config.listenAddr.IP, config.listenAddr.Port)
+	config.log("[inner-ss] Слушать %s на порту %d.", config.listenAddr.IP, config.listenAddr.Port)
 	for {
 		conn, err := listener.AcceptTCP()
 		if err != nil {
-			config.log("[inner-ss] Failed to accept %s", err)
+			config.log("[inner-ss] Не удалось принять %s", err)
 			continue
 		}
-		config.log("[inner-ss] Accept connection from %s", conn.RemoteAddr())
+		config.log("[inner-ss] Принять соединение от %s", conn.RemoteAddr())
 		go config.handleConnection(conn)
 	}
 }
@@ -157,23 +157,23 @@ func (config *Config) handleConnection(conn *net.TCPConn) error {
 	defer conn.Close()
 	conn.SetKeepAlive(true)
 	if err := config.handleSocksEncrypt(conn); err != nil {
-		config.log("[inner-ss] Error when validating user. %s", err)
+		config.log("[inner-ss] Ошибка при проверке пользователя. %s", err)
 		return err
 	}
 	addr, err := getAddr(conn)
 	if err != nil {
-		config.log("[inner-ss] Error when getAddr. %s", err)
+		config.log("[inner-ss] Ошибка при получении адреса. %s", err)
 		return err
 	}
 	if err := config.whitelist.check(addr); err != nil {
-		config.log("[inner-ss] Error when checking ip or domain. %s", err)
+		config.log("[inner-ss] Ошибка при проверке ip или домена. %s", err)
 		return err
 	}
 	server_id := config.scheduler.get()
 	server, ciph := config.servers[server_id].addr, config.servers[server_id].ciph
 	rc, err := net.Dial("tcp", server)
 	if err != nil {
-		config.log("[inner-ss] Cannot connect to shadowsocks server %s\n", server)
+		config.log("[inner-ss] Не удается подключиться к серверу shadowsocks %s\n", server)
 		config.scheduler.report_fail(server_id)
 		return err
 	}
@@ -186,7 +186,7 @@ func (config *Config) handleConnection(conn *net.TCPConn) error {
 	}
 	_, _, rerr, err := relay(rc, conn, config.rtimeout, config.itimeout, config.stimeout)
 	if rerr != nil {
-		config.log("[inner-ss] Remote connection error. %s", rerr)
+		config.log("[inner-ss] Ошибка удаленного подключения. %s", rerr)
 		return rerr
 	}
 	return err
@@ -204,7 +204,7 @@ func (config *Config) handleSocksEncrypt(conn *net.TCPConn) error {
 		auth = 0x02
 	}
 	if buf[0] != 0x05 || !bytein(methods, auth) {
-		return errors.New("Not Socks5 or auth type incorrect.")
+		return errors.New("Не Socks5 или неверный тип аутентификации.")
 	}
 	conn.Write([]byte{0x05, auth})
 	if config.auth {
@@ -213,7 +213,7 @@ func (config *Config) handleSocksEncrypt(conn *net.TCPConn) error {
 			return err
 		}
 		if n < 3 || n < int(buf[1])+3 {
-			return errors.New("Data not correct.")
+			return errors.New("Данные не верны.")
 		}
 		username_len := int(buf[1])
 		username := buf[2 : 2+username_len]
@@ -222,7 +222,7 @@ func (config *Config) handleSocksEncrypt(conn *net.TCPConn) error {
 			conn.Write([]byte{0x01, 0x00})
 			return nil
 		}
-		return errors.New("Invalid username or password.")
+		return errors.New("Неправильное имя пользователя или пароль.")
 	}
 	return nil
 }
@@ -234,27 +234,27 @@ func getAddr(conn *net.TCPConn) ([]byte, error) {
 		return nil, err
 	}
 	if n < 7 {
-		return nil, errors.New("Invalid packet.")
+		return nil, errors.New("Неверный пакет.")
 	}
 	var dstAddr []byte
 	switch buf[3] {
 	case 0x01:
 		if n < 6+net.IPv4len {
-			return nil, errors.New("Invalid packet.")
+			return nil, errors.New("Неверный пакет.")
 		}
 		dstAddr = buf[3 : 6+net.IPv4len]
 	case 0x03:
 		if n < 8 || n < 6+int(buf[4]) {
-			return nil, errors.New("Invalid packet.")
+			return nil, errors.New("Неверный пакет.")
 		}
 		dstAddr = buf[3 : 7+int(buf[4])]
 	case 0x04:
 		if n < 6+net.IPv6len {
-			return nil, errors.New("Invalid packet.")
+			return nil, errors.New("Неверный пакет.")
 		}
 		dstAddr = buf[3 : 6+net.IPv6len]
 	default:
-		return nil, errors.New("Invalid packet.")
+		return nil, errors.New("Неверный пакет.")
 	}
 
 	switch buf[1] {
@@ -262,7 +262,7 @@ func getAddr(conn *net.TCPConn) ([]byte, error) {
 		conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10})
 	default:
 		conn.Write([]byte{0x05, 0x07})
-		return nil, errors.New("Unsupported command.")
+		return nil, errors.New("Неподдерживаемая команда.")
 	}
 	return dstAddr, nil
 }
@@ -312,7 +312,7 @@ func LoadUserConfig(config_file string, verbose bool) (Config, error) {
 		return config, err
 	}
 	if user_config.Listen == "" || user_config.Port == 0 {
-		return config, errors.New("Cannot load config.")
+		return config, errors.New("Не могу загрузить конфиг.")
 	}
 	config.listenAddr = net.TCPAddr{IP: net.ParseIP(user_config.Listen), Port: user_config.Port}
 	config.auth, config.username, config.password = user_config.Auth, []byte(user_config.Username), []byte(user_config.Password)
@@ -342,13 +342,13 @@ func makeServer(s string) (Server, error) {
 func main() {
 	var config_file string
 	var verbose bool
-	flag.BoolVar(&verbose, "v", false, "verbose mode")
-	flag.StringVar(&config_file, "c", "config.json", "config file path")
+	flag.BoolVar(&verbose, "v", false, "подробный режим")
+	flag.StringVar(&config_file, "c", "config.json", "путь к файлу конфигурации")
 	flag.Parse()
 
 	c, err := LoadUserConfig(config_file, verbose)
 	if err != nil {
-		log.Println("Error!", err)
+		log.Println("Ошибка!", err)
 		return
 	}
 	c.StartServer()

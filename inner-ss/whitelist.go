@@ -41,25 +41,25 @@ func (w *Whitelist) check(data []byte) error {
 	switch data[0] {
 	case 0x01:
 		if w.check_ip(net.IP(data[1 : 1+net.IPv4len])) {
-			w.logger("[whitelist] Whitelist ipv4 pass.")
+			w.logger("[whitelist] Белый список ipv4 принят.")
 			return nil
 		}
-		w.logger("[whitelist] Whitelist ipv4 reject.")
-		return errors.New("IPv4 not in whitelist.")
+		w.logger("[whitelist] Белый список ipv4 отклонен.")
+		return errors.New("IPv4 не в белом списке.")
 	case 0x03:
 		if w.check_domain(string(data[2 : 2+data[1]])) {
-			w.logger("[whitelist] Whitelist domain pass.")
+			w.logger("[whitelist] Белый список доменов принят.")
 			return nil
 		}
-		w.logger("[whitelist] Whitelist domain reject.")
-		return errors.New("Domain not in whitelist.")
+		w.logger("[whitelist] Отклонение домена из белого списка.")
+		return errors.New("Домен не в белом листе.")
 	case 0x04:
 		if w.check_ip(net.IP(data[1 : 1+net.IPv6len])) {
-			w.logger("[whitelist] Whitelist ipv6 pass.")
+			w.logger("[whitelist] Белый список ipv6 принят.")
 			return nil
 		}
-		w.logger("[whitelist] Whitelist ipv6 reject.")
-		return errors.New("IPv6 not in whitelist.")
+		w.logger("[whitelist] Белый список ipv6 отклонен.")
+		return errors.New("IPv6 не в белом списке.")
 	}
-	return errors.New("Unknown error.")
+	return errors.New("Неизвестная ошибка.")
 }

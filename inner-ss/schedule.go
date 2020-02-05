@@ -25,7 +25,7 @@ func (s *Scheduler) log(f string, v ...interface{}) {
 func (s *Scheduler) get() int {
 	for i, v := range s.status {
 		if v {
-			s.log("[Schedule] Get server %d.", i)
+			s.log("[Schedule] Получить сервер %d.", i)
 			return i
 		}
 	}
@@ -35,17 +35,17 @@ func (s *Scheduler) get() int {
 		s.fail_count[i] = 0
 	}
 	s.lock.Unlock()
-	s.log("[Schedule] All servers down. Restart all of them. Get 0")
+	s.log("[Schedule] Все серверы отключены. Перезапустите их все.")
 	return 0
 }
 
 func (s *Scheduler) report_success(id int) {
-	s.log("[Schedule] %d success.", id)
+	s.log("[Schedule] %d успешно.", id)
 	s.succ_chan <- id
 }
 
 func (s *Scheduler) report_fail(id int) {
-	s.log("[Schedule] %d fail.", id)
+	s.log("[Schedule] %d неудачно.", id)
 	s.fail_chan <- id
 }
 
@@ -82,12 +82,12 @@ func (s *Scheduler) process(recover_time int) {
 						s.status[fail] = true
 						s.fail_count[fail] = 0
 						locker.Unlock()
-						s.log("[Schedule] Server %d up due to time exceed.", fail)
+						s.log("[Schedule] Сервер %d не работает из-за превышения времени.", fail)
 					}(&s.lock, time.NewTimer(time.Second*time.Duration(recover_time)))
-					s.log("[Schedule] Server %d down.", fail)
+					s.log("[Schedule] Сервер %d выключен.", fail)
 				} else {
 					s.fail_count[fail]++
-					s.log("[Schedule] %d fail count: %d.", fail, s.fail_count[fail])
+					s.log("[Schedule] %d счетчик ошибок: %d.", fail, s.fail_count[fail])
 				}
 			}
 			s.lock.Unlock()
