@@ -2,9 +2,9 @@
 
 ![img](https://i.v2ex.co/5iP665B4.png)
 
-[English](#english) | [中文](#中文)
+[Русский](#russia) 
 
-### English
+### Russia
 
 This is a simple app like `ss-local` in Golang. It is designed for running on a server inside China mainland and connecting a server outside through `shadowsocks`, then you can simply set `SOCKS5` proxy in your Chrome, Telegram etc. without running a client on your laptop or cell phones.
 
