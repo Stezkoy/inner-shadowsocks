@@ -1,58 +1,58 @@
-# inner-shadowsocks for russian language #
+# inner-shadowsocks(fork) for russian language #
 
 ![img](https://i.v2ex.co/5iP665B4.png)
 
-[Русский](#russia) 
+[Русский](#Русский) 
 
-### Russia
+### Русский
 
-This is a simple app like `ss-local` in Golang. It is designed for running on a server inside China mainland and connecting a server outside through `shadowsocks`, then you can simply set `SOCKS5` proxy in your Chrome, Telegram etc. without running a client on your laptop or cell phones.
+Это простое приложение как `ss-local` на Golang. Он предназначен для работы на сервере и подключения сервера снаружи через "shadowsocks", тогда вы можете просто установить " SOCKS5` прокси в Chorimium, Telegram и т. д. без запуска клиента на вашем ноутбуке или сотовом телефоне.
 
-There is a python version of this app: [shadowsocks-with-socks-auth](https://github.com/ihciah/shadowsocks-with-socks-auth), which is just a small modified version of original shadowsocks adding `SOCKS5` auth support. This go version is more efficient and support multi-server balance.
+Существует версия этого (Форк!!)приложения на python: [shadowsocks-with-socks-auth](https://github.com/ihciah/shadowsocks-with-socks-auth), которая представляет собой небольшую модифицированную версию оригинального shadowsocks с добавлением ` Поддержка SOCKS5`. Эта версия Go более эффективна и поддерживает баланс нескольких серверов.
 
 -----
 
-#### Features:
+#### Особенности:
 
-- `SOCKS5` auth
-- multi-server for load balance
+- `SOCKS5` аутентификация
+- multi-server для баланса нагрузки
 
-#### Install:
+#### Установка:
 
-Way 1: Download binary from [Releases](https://github.com/stezkoy/inner-shadowsocks/releases). Golang environment is not required.
+Путь №1: Загрузить бинарный файл [Releases](https://github.com/Stezkoy/inner-shadowsocks/releases).Установка  (Go)Golang не требуется.
 
-Way 2:
+Путь №2:
 
 ```shell
-go get -u -v github.com/stezkoy/inner-shadowsocks/inner-ss
+go get -u -v github.com/Stezkoy/inner-shadowsocks/inner-ss
 ```
 
-Due to network issue in China mainland, in most situation, `go get` cannot be executed correctly.
 
-#### Usage:
+
+#### Использование:
 
 ```shell
 inner-ss -c config.json
+```
 
 ```Systemd
 systemctl enable inner-ss@config
-
 ```
-- -c: configure file path(default: `config.json`)
-- -v: verbose mode
 
-Configure file:
+- -c: путь к файлу конфигурации(по умолчанию: `config.json`)
+- -v: подробный режим
 
-A json string like
+Настройте файл:
+
 
 ```json
 {
-  "listen": "0.0.0.0",
-  "port": 23333,
-  "auth": false,
-  "username": "ihc",
-  "password": "iah",
-  "servers": ["ss://RC4-MD5:pass1@ip1:port1", "ss://RC4-MD5:pass2@ip2:port2"],
+  "listen": "127.0.0.1",
+  "port": 9980,
+  "auth": true,
+  "username": "Stezkoy",
+  "password": "123456",
+  "servers": ["ss://aes-256-cfb:pass1@ip1:port1", "ss://RC4-MD5:pass2@ip2:port2"],
   "maxfail": 3,
   "recovertime": 600,
   "starttimeout": 5,
@@ -64,18 +64,32 @@ A json string like
 }
 ```
 
-The `auth`, `username`, `password`, `maxfail`, `recovertime`, `remotetimeout`, `insidetimeout`, `starttimeout` are optional whose default value are `false`, `""`, `""`, `10`, `600`, `60`, `60`, `8` .
 
-Also, `whitelistenable` is `false` by default. If you want to limit proxy only to some range, you can use `whitelistdomains` and `whitelistips` .
+The `auth`, `username`, `password`, `maxfail`, `recovertime`, `remotetimeout`, `insidetimeout`, `starttimeout` являются необязательными, значение по умолчанию которых `false`, `""`, `""`, `10`, `600`, `60`, `60`, `8` .
 
-IP should follow CIDR format such as `100.110.120.130/32`. `::/0` means all IPv6, `0.0.0.0/0` means all IPv4. Domains will be matched by the suffix. Any domains has suffix matched in `whitelistdomains` can pass. For example, `www.github.com` will match `.github.com`.
+Также,  `whitelistenable` - `false` по умолчанию. Если вы хотите ограничить прокси только некоторым диапазоном, вы можете использовать `whitelistdomains` and `whitelistips` .
 
-If you set `auth` to `true`, you should provide `username` and `password`. 
+IP должен соответствовать формату CIDR, например `100.110.120.130/32`. `::/0` означает, что все IPv6, `0.0.0.0/0` означает, что все IPv4. Домены будут сопоставляться с суффиксом. Любые домены, суффикс которых совпадает с `whitelistdomains`, могут пройти. Например, `www.github.com` будет соответствовать` .github.com`.
 
-You should list your servers in order. If one of them cannot be connected for `maxfail` times, it will be marked as downed-server until `recovertime` seconds later. Please pay attention that you must ensure the password and encryption method is correct. Because we cannot distinguish users' malicious requests and the wrong password of shadowsocks servers, here we judge server status through if we can connect it.
+Если вы установите для `auth` значение` true`, вы должны указать `username` и` password`. 
 
-`remotetimeout` is the timeout connecting remote servers, and `insidetimeout` is the one to clients. `starttimeout`  is the timeout of the first communication. A short `starttimeout` can decrease the waiting time of the false packet, long `remotetimeout` and `insidetimeout` can allow long connection, for example to decrease the reconnecting of Telegram.
+Вы должны перечислить свои серверы по порядку. Если один из них не может быть подключен в течение "maxfail" раз, он будет помечен как сбитый сервер до "recovertime" секунд спустя. Пожалуйста, обратите внимание, что вы должны убедиться, что пароль и метод шифрования верны. Поскольку мы не можем отличить вредоносные запросы пользователей и неверный пароль серверов shadowsocks, здесь мы оцениваем состояние сервера, если можем подключать его.
 
-You can use `systemd` or `supervisor` to run the daemon. The example configure of supervisor is at the bottom.
+`remotetimeout` - это тайм-аут, соединяющий удаленные серверы, а `insidetimeout` - это клиент. `starttimeout` - это время ожидания первого сеанса связи. Короткое `starttimeout` может уменьшить время ожидания ложного пакета, длинные `remotetimeout` и `insidetimeout` могут позволить длинное соединение, например, уменьшить повторное соединение Telegram.
+
+Вы можете использовать `systemd` для запуска демона. Пример настройки находится внизу.
 
 Systemd Service 
+```
+[Unit]
+Description=Inner-SS Client Service
+After=network.target
+
+[Service]
+Type=simple
+User=nobody
+ExecStart=/bin/inner-ss -v -c /etc/inner-ss/%i.json
+
+[Install]
+WantedBy=multi-user.target
+```

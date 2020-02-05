@@ -130,7 +130,7 @@ func (config *Config) StartServer() {
 	if err != nil {
 		panic("[inner-ss] Не могу прослушать данный ip и порт!")
 	}
-	config.log("[inner-ss] Auth: %t, Белый список: %t, Удаленный тайм-аут: %d sec, Внутренний тайм-аут: %d sec.",
+	config.log("[inner-ss] Аутентификация: %t, Белый список: %t, Удаленный тайм-аут: %d сек, Внутренний тайм-аут: %d сек.",
 		config.auth, config.whitelist.enable, config.rtimeout/time.Second, config.itimeout/time.Second)
 	config.log("[inner-ss] Слушать %s на порту %d.", config.listenAddr.IP, config.listenAddr.Port)
 	for {
